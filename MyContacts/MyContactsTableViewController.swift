@@ -7,11 +7,17 @@
 //
 
 import UIKit
+import CoreData
 
 class MyContactsTableViewController: UITableViewController {
+    
+    var managedObjectContext: NSManagedObjectContext!
+    var myContacts = [MyContacts]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        reloadData()
 
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
@@ -24,28 +30,47 @@ class MyContactsTableViewController: UITableViewController {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
+    
+        // Fetch data from the MyContacts entity
+    func reloadData(){
+        
+        let fetchRequest = NSFetchRequest(entityName: "MyContacts")
+        
+        do {
+            if let results = try managedObjectContext.executeFetchRequest(fetchRequest) as? [MyContacts] {
+                    myContacts = results
+                tableView.reloadData() // Called from the table view controller
+            }
+        } catch {
+            fatalError("There was an error fetching your contacts!")
+        }
+        
+    }
 
     // MARK: - Table view data source
 
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         // #warning Incomplete implementation, return the number of sections
-        return 0
+        return 1
     }
 
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
-        return 0
+        return myContacts.count
     }
 
-    /*
+    
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("reuseIdentifier", forIndexPath: indexPath)
+        let cell = tableView.dequeueReusableCellWithIdentifier("MyContactsCell", forIndexPath: indexPath)
 
         // Configure the cell...
+        let myContact = myContacts[indexPath.row]
+        cell.textLabel?.text = myContact.name
+        cell.detailTextLabel?.text = myContact.phone + " " + myContact.email
 
         return cell
     }
-    */
+    
 
     /*
     // Override to support conditional editing of the table view.
