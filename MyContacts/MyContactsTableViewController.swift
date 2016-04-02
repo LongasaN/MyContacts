@@ -17,6 +17,8 @@ class MyContactsTableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "addMyContact:")
+        
         reloadData()
 
         // Uncomment the following line to preserve selection between presentations
@@ -46,6 +48,56 @@ class MyContactsTableViewController: UITableViewController {
         }
         
     }
+    
+        // This method adds the information to the MyContacts Core Data
+    func addMyContact(sender: AnyObject?) {
+        
+        let alert = UIAlertController(title: "Add", message: "MyContacts", preferredStyle: .Alert)
+        
+        let addAction = UIAlertAction(title: "Add", style: .Default) { (action) -> Void in
+            
+                // Checks the user if they entered a non-empty String
+                // This also sets up immutable text fields
+            if let nameTextField = alert.textFields?[0], phoneTextField = alert.textFields?[1], emailTextField = alert.textFields?[2], myContactsEntity = NSEntityDescription.entityForName("MyContacts", inManagedObjectContext: self.managedObjectContext), name = nameTextField.text, phone = phoneTextField.text, email = emailTextField.text {
+            
+                    // Create managed object instance for MyContacts Entity
+                let newMyContacts = MyContacts(entity: myContactsEntity, insertIntoManagedObjectContext: self.managedObjectContext)
+                
+                newMyContacts.name = name
+                newMyContacts.phone = phone
+                newMyContacts.email = email
+                
+                    // Saving the data
+                do {
+                    try self.managedObjectContext.save()
+                } catch {
+                    print("Error saving the managed object context!")
+                }
+                
+                self.reloadData() // Fetches data to reload it
+            }
+        }
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .Default) { (action) -> Void in
+        }
+        
+        alert.addTextFieldWithConfigurationHandler{ (textField) in
+            textField.placeholder = "Name"
+        }
+        alert.addTextFieldWithConfigurationHandler{ (textField) in
+            textField.placeholder = "Phone"
+        }
+        alert.addTextFieldWithConfigurationHandler{ (textField) in
+            textField.placeholder = "Email"
+        }
+        
+        alert.addAction(addAction)
+        alert.addAction(cancelAction)
+        
+        presentViewController(alert, animated: true, completion: nil)
+        
+    }
+    
 
     // MARK: - Table view data source
 
@@ -66,7 +118,7 @@ class MyContactsTableViewController: UITableViewController {
         // Configure the cell...
         let myContact = myContacts[indexPath.row]
         cell.textLabel?.text = myContact.name
-        cell.detailTextLabel?.text = myContact.phone + " " + myContact.email
+        cell.detailTextLabel?.text = myContact.phone + " | " + myContact.email
 
         return cell
     }
