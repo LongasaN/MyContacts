@@ -77,17 +77,17 @@ class MyContactsTableViewController: UITableViewController {
             self.reloadData()
         }))
         
-        // By Store
+        // By Name of Contact
         sheet.addAction(UIAlertAction(title: "By Phone", style: .Default, handler: {(action) -> Void in
             self.reloadData(nil, sortDescriptor: "phone")
         }))
         
-        // By Name
+        // By Phone of Contact
         sheet.addAction(UIAlertAction(title: "By Name", style: .Default, handler: {(action) -> Void in
             self.reloadData(nil, sortDescriptor: "name")
         }))
         
-        // By Date
+        // By E-maile of Contact
         sheet.addAction(UIAlertAction(title: "By E-mail", style: .Default, handler: {(action) -> Void in
             self.reloadData(nil, sortDescriptor: "email")
         }))
@@ -97,6 +97,7 @@ class MyContactsTableViewController: UITableViewController {
     }
     
         // This function filters the contacts by name
+    
     func selectFilter(sender: AnyObject?){
         
         let alert = UIAlertController(title: "Filter", message: "MyContact", preferredStyle: .Alert)
@@ -124,6 +125,16 @@ class MyContactsTableViewController: UITableViewController {
         presentViewController(alert, animated: true, completion: nil)
         
     }
+    /*
+        Note: It's interesting that it only accepts the first name when I try to filter it.
+            
+          Most of the contacts I tested out have their full names. Then when I try to input the full name
+            the rows are blank then when I try to input just the first name, it also disappears
+                ex. Nina Longasa | Filter: Nina | Result: Blank Table View
+                        Nina Longasa | Filter: Nina Longasa | Result: Blank Table View
+                        Nina | Filter: Nina | Result: Displays anyone with the name Nina
+    
+    */
     
         // This method adds the information to the MyContacts Core Data
     func addMyContact(sender: AnyObject?) {
