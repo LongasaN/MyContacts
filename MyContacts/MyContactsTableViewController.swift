@@ -17,7 +17,8 @@ class MyContactsTableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "addMyContact:")
+            // Update: Added additional navigation items
+        navigationItem.rightBarButtonItems = [UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "addMyContact:"), UIBarButtonItem(title: "Filter", style: .Plain, target: self, action: "selectFilter:"), UIBarButtonItem(title: "Sort", style: .Plain, target: self, action: "selectSort:")]
         
         reloadData()
         
@@ -39,9 +40,22 @@ class MyContactsTableViewController: UITableViewController {
     }
     
         // Fetch data from the MyContacts entity
-    func reloadData(){
+            // Update: added parameters in the reload data
+    func reloadData(contactFilter: String? = nil, sortDescriptor: String? = nil){
         
         let fetchRequest = NSFetchRequest(entityName: "MyContacts")
+        
+        // Predicate for the filter contacts
+        if let contactFilter = contactFilter {
+            let contactPredicate = NSPredicate(format: "name =[c] %@", contactFilter)
+            fetchRequest.predicate = contactPredicate
+        }
+        
+        //Predicate for sorting contacts
+        if let sortDescriptor = sortDescriptor {
+            let sort = NSSortDescriptor(key: sortDescriptor, ascending: true)
+            fetchRequest.sortDescriptors = [sort]
+        }
         
         do {
             if let results = try managedObjectContext.executeFetchRequest(fetchRequest) as? [MyContacts] {
@@ -51,6 +65,63 @@ class MyContactsTableViewController: UITableViewController {
         } catch {
             fatalError("There was an error fetching your contacts!")
         }
+        
+    }
+    
+        // This function sorts the contacts
+    func selectSort(sender: AnyObject?){
+        
+        let sheet = UIAlertController(title: "Sort", message: "MyContacts", preferredStyle: .ActionSheet)
+        
+        sheet.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: {(action) -> Void in
+            self.reloadData()
+        }))
+        
+        // By Store
+        sheet.addAction(UIAlertAction(title: "By Phone", style: .Default, handler: {(action) -> Void in
+            self.reloadData(nil, sortDescriptor: "phone")
+        }))
+        
+        // By Name
+        sheet.addAction(UIAlertAction(title: "By Name", style: .Default, handler: {(action) -> Void in
+            self.reloadData(nil, sortDescriptor: "name")
+        }))
+        
+        // By Date
+        sheet.addAction(UIAlertAction(title: "By E-mail", style: .Default, handler: {(action) -> Void in
+            self.reloadData(nil, sortDescriptor: "email")
+        }))
+        
+        presentViewController(sheet, animated: true, completion: nil)
+        
+    }
+    
+        // This function filters the contacts by name
+    func selectFilter(sender: AnyObject?){
+        
+        let alert = UIAlertController(title: "Filter", message: "MyContact", preferredStyle: .Alert)
+        
+        let filterAction = UIAlertAction(title: "Filter", style: .Default) {
+            (action) -> Void in
+            
+            if let nameTextField = alert.textFields?[0], name = nameTextField.text {
+                self.reloadData(name)
+            }
+        }
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .Default) {
+            (action) -> Void in
+            self.reloadData()
+        }
+        
+        alert.addTextFieldWithConfigurationHandler { (textField) in
+            textField.placeholder = "Name of Contact"
+        }
+        
+        alert.addAction(filterAction)
+        alert.addAction(cancelAction)
+        
+        presentViewController(alert, animated: true, completion: nil)
         
     }
     
@@ -111,6 +182,7 @@ class MyContactsTableViewController: UITableViewController {
         return 1
     }
 
+        // Displays each section of the cell
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
         return myContacts.count
