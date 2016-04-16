@@ -20,12 +20,17 @@ class MyContactsTableViewController: UITableViewController {
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "addMyContact:")
         
         reloadData()
+        
+        // Displays the name of the application and the number of contacts in the Core Data
+        
+        if myContacts.count < 2 {
+            title = "MyContacts: " + String(myContacts.count) + " Contact"
+            reloadData()
+        } else {
+            title = "MyContacts: " + String(myContacts.count) + " Contacts"
+            reloadData()
+        }
 
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-
-        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem()
     }
 
     override func didReceiveMemoryWarning() {
@@ -124,25 +129,33 @@ class MyContactsTableViewController: UITableViewController {
     }
     
 
-    /*
+            // This function is needed in order to delete an item
     // Override to support conditional editing of the table view.
     override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
         // Return false if you do not want the specified item to be editable.
         return true
     }
-    */
+    
 
-    /*
+            // This function deletes the selected contact list in the MyContacts App
     // Override to support editing the table view.
     override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
         if editingStyle == .Delete {
-            // Delete the row from the data source
-            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
-        } else if editingStyle == .Insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
+            
+            let contact = myContacts[indexPath.row]
+            
+            managedObjectContext.deleteObject(contact)
+            
+            do {
+                try self.managedObjectContext.save()
+            } catch {
+                print("Error saving the managed object context!")
+            }
+            
+            reloadData()
         }    
     }
-    */
+    
 
     /*
     // Override to support rearranging the table view.
